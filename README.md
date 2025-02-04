@@ -1,1 +1,2 @@
-# kmer-rep
+#K-mergency: 
+A k-mer analysis pipeline for evaluating assembly compression. This Bash pipeline utilises **Jellyfish**, **GenomeScope2.0**, and **R** to quantify k-mer frequency in both reads and assembly, estimate genome compression, and annotate repeated k-mers. It supports gzipped inputs, generates detailed statistics, and integrates **Merqury** for completeness assessment. Optimized for SLURM-based HPC environments.
