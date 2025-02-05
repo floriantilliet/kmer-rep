@@ -71,7 +71,7 @@ To run the script, use the following command:
 `4_dumps/`: Contains the dumps of k-mers from the reads and the assembly. \
 `5_annotated_repeated_kmers/`: Annotates repeated k-mers found in the annotations file. \
 `6_repetitions_stats/`: Contains statistics on k-mer repetitions, including compression and genome assembly estimation.\
-`report_<output>.html`: An HTML report with visualizations of the k-mer compression and repetition analysis. \
+`report_<output>.html`: An HTML report with visualizations of the k-mer compression and repetition analysis.
 
 ------------------------------------------------------------------------
 
