@@ -373,7 +373,25 @@ then
     fi
 
     merqury_value=$(awk -F'\t' '{print $5}' "${completeness_files[0]}")
-    percent_repeted=$(awk -v DEPTH=$DEPTH '{if($2 > 20*DEPTH) repeated += $2; total += $2} END {print (repeated/total)*100}' $DIR/4_dumps/merged_dump_$OUTPUT.txt | bc -l)
+    sum_above_10DEPTH=0
+    total_sum=0
+
+    while read -r col1 col2; do
+        total_sum=$(echo "$total_sum + $col2" | bc -l)
+        
+        if (( $(echo "$col2 > 10 * $DEPTH" | bc -l) )); then
+            sum_above_10DEPTH=$(echo "$sum_above_10DEPTH + $col2" | bc -l)
+        fi
+    done < "$DIR/1_jellyfish_reads_output/reads.histo"
+
+
+    if (( $(echo "$total_sum != 0" | bc -l) )); then
+        percent_repeted=$(echo "$sum_above_10DEPTH / $total_sum" | bc -l)
+        echo "Percent of reptition is : $percent_repeted"
+    else
+        echo "The total sum is equal to zero, impossible to calculate."
+    fi
+    
     sum_compression_20=$(awk -F': ' '/Compression of k-mers repeated at least 20 times in the genome/ {gsub(/%/, "", $2); print $2}' $DIR/6_repetitions_stats/repetition_stats_$OUTPUT.txt)
     completion=$(echo "$merqury_value - ($sum_compression_20 * $percent_repeted) / 100" | bc -l)
     completion=$(printf "%.3f" $completion)
