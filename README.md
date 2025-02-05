@@ -65,10 +65,13 @@ To run the script, use the following command:
 
 ## Outputs
 
-`1_jellyfish_reads_output/`: Contains the Jellyfish count and histogram files for the reads. `2_genomescope_output/`: Contains the GenomeScope output used for genome completeness analysis.\
+`1_jellyfish_reads_output/`: Contains the Jellyfish count and histogram files for the reads. \
+`2_genomescope_output/`: Contains the GenomeScope output used for genome completeness analysis.\
 `3_jellyfish_assembly_output/`: Contains the Jellyfish count file for the assembly.\
-`4_dumps/`: Contains the dumps of k-mers from the reads and the assembly. `5_annotated_repeated_kmers/`: Annotates repeated k-mers found in the annotations file. `6_repetitions_stats/`: Contains statistics on k-mer repetitions, including compression and genome assembly estimation.\
-`report_<output>.html`: An HTML report with visualizations of the k-mer compression and repetition analysis.
+`4_dumps/`: Contains the dumps of k-mers from the reads and the assembly. \
+`5_annotated_repeated_kmers/`: Annotates repeated k-mers found in the annotations file. \
+`6_repetitions_stats/`: Contains statistics on k-mer repetitions, including compression and genome assembly estimation.\
+`report_<output>.html`: An HTML report with visualizations of the k-mer compression and repetition analysis. \
 
 ------------------------------------------------------------------------
 
