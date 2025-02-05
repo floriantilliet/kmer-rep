@@ -1,14 +1,5 @@
 #!/bin/bash
 
-#SBATCH --job-name=K-mergency
-#SBATCH --output=K-mergency.out
-#SBATCH --error=K-mergency.err
-#SBATCH --time=24:00:00
-#SBATCH --ntasks=1
-#SBATCH --cpus-per-task=16
-#SBATCH --mem=256G
-
-
 module purge
 module load bioinfo/Jellyfish/2.3.0
 module load statistics/R/4.2.2
