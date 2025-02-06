@@ -105,7 +105,7 @@ fi
 
 if [[ ! -s "$DIR/1_jellyfish_reads_output/reads.histo" ]];
 then
-jellyfish histo -t 16 $DIR/1_jellyfish_reads_output/reads.jf > $DIR/1_jellyfish_reads_output/reads.histo
+jellyfish histo -h 10000000000 -t 16 $DIR/1_jellyfish_reads_output/reads.jf > $DIR/1_jellyfish_reads_output/reads.histo
 fi
 
 if $VERBOSE = true;
@@ -121,11 +121,26 @@ then
 Rscript /usr/local/bioinfo/src/GenomeScope2.0/genomescope2.0-eca7b88/genomescope.R -i $DIR/1_jellyfish_reads_output/reads.histo -o $DIR/2_genomescope_output -k 21
 fi
 
-COV=$(grep "kmercov" $DIR/2_genomescope_output/model.txt | awk '{print $2}' | grep -Eo '[0-9.]+e[+-][0-9]+' | awk '{printf "%.0f\n", $1}')
+# Depth can also be provided by genomescope2 if its model has low error rate
+# COV=$(grep "kmercov" $DIR/2_genomescope_output/model.txt | awk '{print $2}' | grep -Eo '[0-9.]+e[+-][0-9]+' | awk '{printf "%.0f\n", $1}')
 
-DEPTH=$(echo $COV | awk '{a=$0*2; printf(a"\n")}')
+# DEPTH=$(echo $COV | awk '{a=$0*2; printf(a"\n")}')
 
-THRESHOLD=$(echo $COV | awk '{a=$0*20; printf(a"\n")}')
+read ESTIMATED_GENOME_SIZE DEPTH< <(awk 'BEGIN {sum=0; max_freq=0; peak=0}  
+     $1 > 5 { 
+         sum += $1 * $2;
+         if ($2 > max_freq) { 
+             max_freq = $2; 
+             peak = $1;
+         }
+     } 
+     END {print sum / peak, peak}' $DIR/1_jellyfish_reads_output/reads.histo )
+
+echo "Estimated genome size = $ESTIMATED_GENOME_SIZE"
+
+echo "depth = $DEPTH"
+
+THRESHOLD=$(echo $DEPTH | awk '{a=$0*10; printf(a"\n")}')
 
 if $VERBOSE = true;
 then
@@ -259,7 +274,8 @@ then
 
 mkdir -p $DIR/6_repetitions_stats
 
-awk -F'\t' -v depth=$DEPTH '
+
+awk -F'\t' -v depth="$DEPTH" -v estimated_genome_size="$ESTIMATED_GENOME_SIZE" '
 BEGIN {
     count_10000 = 0; count_200 = 0; count_10 = 0;
     compression_10 = 0; compression_200 = 0; compression_10000 = 0;
@@ -313,12 +329,15 @@ END {
 
     sum_compression_10 = 100 - 100 * compression_10/count_10;
 
-    repeated_kmers_in_genome = 100 * expected_repeated_kmer/84000000000;
-    
-    repeated_kmers_in_assembly = 100 * observed_repeated_kmer/total_observed_count;
+    print "total kmers counts = ", depth * estimated_genome_size, "\n";
+        
+    percentage_repeated_kmers_in_assembly = 100 * observed_repeated_kmer/total_observed_count;
 
+    print " a score of 0% means all the repeated sequences are fully compressed, 100% means the assembly has no compression \n";
+    
     print "Compression of k-mers repeated at least 10 times in the genome:",sum_compression_10, "%";
     print "This represents all the k-mers we considered sufficiently present to be repeated. \n";
+
 
     print "Compression of k-mers repeated at least 200 times in the genome:",100 - 100 * compression_200/count_200, "%";
     print "This represents highly repeated k-mers, which are therefore unlikely to be related to gene duplications or highly conserved elements in the genome (which are most often repeated fewer than 100 times). \n";
@@ -326,9 +345,9 @@ END {
     print "Compression of k-mers repeated at least 10000 times in the genome:", 100 - 100 * compression_10000/count_10000, "%";
     print "This represents highly repeated k-mers generally found in transposons or satellite DNA (the only ones often repeated tens of thousands of times). \n";
  
-    print "Percentage of repeated kmers in the genome assembly:", repeated_kmers_in_assembly, "%";
+    print "Percentage of repeated kmers in the genome assembly:", percentage_repeated_kmers_in_assembly, "%";
 
-    print "Estimation of assembly genome compression", 100 - ((50 * sum_compression_10) / 100), "%" ;
+    print "Estimation of assembly genome compression", 100 - ((percentage_repeated_kmers_in_assembly * sum_compression_10) / 100), "%" ;
 }' $DIR/4_dumps/merged_dump_$OUTPUT.txt > $DIR/6_repetitions_stats/repetition_stats_$OUTPUT.txt
 
 fi
