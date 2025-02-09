@@ -76,3 +76,14 @@ To run the script, use the following command:
 ------------------------------------------------------------------------
 
 ## Example Workflow
+To try the pipeline on a small tested dataset from e. coli, you can use the following reads :
+https://trace.ncbi.nlm.nih.gov/Traces/?view=run_browser&acc=SRR13921543&display=metadata
+
+with its associated assembly :
+https://www.ncbi.nlm.nih.gov/datasets/genome/GCF_000005845.2/
+
+The repeatition annotation file can be found on msRepDB using the following taxonomy id :
+511145
+
+
+
